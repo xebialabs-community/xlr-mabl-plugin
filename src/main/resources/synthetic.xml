@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+
+    Copyright 2021 DIGITAL.AI
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-->
+<synthetic xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd" xmlns="http://www.xebialabs.com/deployit/synthetic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <type type="mabl.Server" extends="configuration.HttpConnection" >
+        <property name="scriptLocation" hidden="true" default="mabl/Server.py"/>
+        <property name="username" default="NONE" hidden="true"/>
+        <property name="password" default="NONE" hidden="true"/>
+        <property name="domain" default="NONE" hidden="true"/>
+        <property name="clientId" default="empty" hidden="true"/>
+        <property name="clientSecret" default="empty" hidden="true" password="true"/>
+        <property name="scope" default="empty" hidden="true"/>
+        <property name="accessTokenUrl" default="empty" hidden="true"/>
+        <property name="authenticationMethod" kind="enum"
+                  enum-class="com.xebialabs.xlrelease.domain.configuration.HttpConnection$AuthenticationMethod"
+                  hidden="true" default="Basic">
+            <enum-values>
+                <value>Basic</value>
+            </enum-values>
+        </property>
+        <property name="token" password="true" label="API Token" category="Authentication" hidden="false" required="false" />
+    </type>
+
+    <type type="mabl.Task" extends="xlrelease.PythonScript" virtual="true">
+        <property name="iconLocation" default="mabl/logo2.png" hidden="true" />
+        <property name="taskColor" hidden="true" default="#4c555a"/>
+        <property name="scriptLocation" default="mabl/mablTask.py" hidden="true"/>
+        <property name="mablServer" category="input" label="Server" referenced-type="mabl.Server" kind="ci" />
+        <property name="token" password="true" category="input" required="false" />
+        <property name="classReload" category="input" default="true" hidden="true" kind="boolean"/>
+    </type>
+
+    <type type="mabl.runTest" extends="mabl.Task">
+        <property name="environmentId" category="input" required="false" />
+        <property name="applicationId" category="input" required="false" />
+        <property name="planLabels" category="input" required="false" kind="list_of_string"/>
+        <property name="pollTime" category="input" default="10" kind="integer" hidden="false"/>
+        <property name="journeyExecutionFailed" category="output" kind="integer" />
+        <property name="journeyExecutionPassed" category="output" kind="integer" />
+        <property name="journeyExecutionRunning" category="output" kind="integer" />
+        <property name="journeyExecutionSkipped" category="output" kind="integer" />
+        <property name="journeyExecutionTerminated" category="output" kind="integer" />
+        <property name="journeyExecutionTotal" category="output" kind="integer" />
+        <property name="planExecutionFailed" category="output" kind="integer" />
+        <property name="planExecutionPassed" category="output" kind="integer" />
+        <property name="planExecutionTotal" category="output" kind="integer" />
+        <property name="journeyUrl" category="output" kind="list_of_string" />
+        <property name="testId" category="script" required="false" />
+    </type>
+
+
+</synthetic>
