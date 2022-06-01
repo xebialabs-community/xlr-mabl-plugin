@@ -7,22 +7,14 @@
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+import mabl.MablClient
+if classReload:
+    reload(mabl.MablClient)
 from mabl.MablClient import Mabl_Client
 import logging
 
-logger = logging.getLogger('mabl.'+'Server')
-
-logger.debug("Setting up server object")
-params = {
-   'url': configuration.url,
-   'username': configuration.username,
-   'password': configuration.password,
-   'token': configuration.token,
-   'proxyHost': configuration.proxyHost,
-   'proxyPort': configuration.proxyPort
-}
-
-logger.debug("#### url = %s ######" % configuration.url)
-mablClient = Mabl_Client.create_client( params, configuration.token)
-
-mablClient.testServer()
+logger = logging.getLogger('mabl.'+'RunTest')
+logger.debug("In RunTest")
+mablObj = Mabl_Client.create_client(mablServer, token)
+retrievedTestId = mablObj.mabl_runtest(locals())
+locals()['testId'] = retrievedTestId

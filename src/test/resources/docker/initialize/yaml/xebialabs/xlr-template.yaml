@@ -1,5 +1,5 @@
 #
-# Copyright 2021 DIGITAL.AI
+# Copyright 2022 DIGITAL.AI
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 #
@@ -15,24 +15,38 @@ metadata:
 spec:
 - template: TestMabl
   scheduledStartDate: 2021-10-21T13:00:00Z
+  dueDate: 2021-10-21T14:00:00Z
   phases:
   - phase: New Phase
     tasks:
     - name: Run 1 Test
-      type: mabl.runTest
+      type: mabl.runTestResultSync
       mablServer: Mabl
-      environmentId: ZChkZSULz3iaWmygIUADcQ-e
-      applicationId: XVP47WVqnrpfVZ1jBd33bg-a
+      environmentId: HbUISgrYIsdZ3SwWnxpKDQ-e
+      applicationId: AkB0CIJm5PYZNz5GIneIWQ-a
       planLabels:
-      - demo
-      - ui
+      - Demo1
     - name: Run Multi Test
+      type: mabl.runTestResultSync
+      mablServer: Mabl
+      environmentId: HbUISgrYIsdZ3SwWnxpKDQ-e
+      applicationId: AkB0CIJm5PYZNz5GIneIWQ-a
+    - name: Run Test async
       type: mabl.runTest
       mablServer: Mabl
-      environmentId: ZChkZSULz3iaWmygIUADcQ-e
-      applicationId: XVP47WVqnrpfVZ1jBd33bg-a
-      planLabels:
-      - ui
+      environmentId: HbUISgrYIsdZ3SwWnxpKDQ-e
+      applicationId: AkB0CIJm5PYZNz5GIneIWQ-a
+      variableMapping:
+        pythonScript.testId: "${TestId1}"
+    - name: Get Result
+      type: mabl.getResult
+      mablServer: Mabl
+      testId: "${TestId1}"
     - name: gate
       type: xlrelease.GateTask
+  variables:
+  - type: xlrelease.StringVariable
+    key: TestId1
+    requiresValue: false
+    showOnReleaseStart: false
   riskProfile: Default risk profile

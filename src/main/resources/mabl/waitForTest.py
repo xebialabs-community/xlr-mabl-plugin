@@ -1,5 +1,5 @@
 #
-# Copyright 2021 DIGITAL.AI
+# Copyright 2022 DIGITAL.AI
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 #
@@ -9,9 +9,11 @@
 #
 import mabl.MablClient
 from mabl.MablClient import Mabl_Client
-import org.slf4j.LoggerFactory as LoggerFactory
+import logging
 
-logger = LoggerFactory.getLogger("Mabl")
+logger = logging.getLogger('mabl.'+'waitForTest')
+
+#logger = LoggerFactory.getLogger("Mabl")
 mablObj = Mabl_Client.create_client(mablServer, token)
 method = "mabl_waitfortest"
 
@@ -38,12 +40,12 @@ if not isDone:
             isDone = False
     count += 1
     if not isDone:
-        logger.error("Reschedule `waitForTest` in %s seconds" % locals()['pollTime'])
+        logger.debug("Reschedule `waitForTest` in %s seconds" % locals()['pollTime'])
         task.schedule("mabl/waitForTest.py", locals()['pollTime'])
 
 if isDone:
     for key,value in results['output'].items():
-        logger.error("%s = %s" % (key, value))
+        logger.debug("%s = %s" % (key, value))
         locals()[key] = value
 
     print("# Journey URLs:")
