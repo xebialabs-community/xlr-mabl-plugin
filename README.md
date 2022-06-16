@@ -15,7 +15,7 @@
 
 This document describes the functionality proved by the xlr-mabl-plugin.
 
-See the **[XL Release Documentation](https://docs.xebialabs.com/xl-release/index.html)** for background information on XL Release and release concepts.
+See the **[XL Release Documentation](https://docs.digital.ai/bundle/devops-release-version-v.22.1/page/release/how-to/get-started-with-xl-release.html)** for background information on XL Release and release concepts.
 
 ## Requirements
 

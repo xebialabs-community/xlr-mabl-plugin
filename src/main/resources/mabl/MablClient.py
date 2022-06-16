@@ -31,18 +31,24 @@ class Mabl_Client(object):
             self.token = httpConnection['token']
         self.httpRequest = HttpRequest(httpConnection)
 
+
     @staticmethod
     def create_client(httpConnection, token=None):
         return Mabl_Client(httpConnection, token)
 
+
     def testServer(self):
-        logger.debug("In testServer")
-        mablUrl = "login"
+        api_key_bytes = self.token.encode('ascii')
+        Base64String = base64.b64encode(api_key_bytes)
+        Base64String = "Basic %s" % Base64String
+        logger.debug("testServer: Base64String %s" % Base64String)
+
         headers = {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": Base64String
         }
-        response = requests.get("https://app.mabl.com/login", headers=None,
-                            proxies = None, verify = False)
+
+        response = self.httpRequest.get("login", headers=headers)
         response.raise_for_status()
         
 
@@ -50,13 +56,14 @@ class Mabl_Client(object):
         api_key_bytes = self.token.encode('ascii')
         Base64String = base64.b64encode(api_key_bytes)
         Base64String = "Basic %s" % Base64String
-        logger.debug("Base64String %s" % Base64String)
 
         headers = {
           "Content-Type": "application/json",
           "Authorization": Base64String
         }
+
         payload =   {}
+        
         if len(variables['environmentId']) > 0:
             env = {"environment_id": variables['environmentId']}
             payload.update(env)
@@ -70,14 +77,17 @@ class Mabl_Client(object):
         mablUrl = "events/deployment"
         logger.debug("Test Run URL %s" % mablUrl)
         logger.debug("\nPayload==========\n%s\n===============" % json.dumps(payload, indent=4, sort_keys=True))
+
         response = self.httpRequest.post(mablUrl, json.dumps(payload), headers=headers)
         data = json.loads(response.getResponse())
         logger.debug("Start Test Response\n=============\n%s\n==================" % json.dumps(response.getResponse(), indent=4, sort_keys=True))
+
         if response.getStatus() not in HTTP_SUCCESS:
             logger.error("Start Test Request Error (%s)" % str(response.getStatus()))
             self.throw_error(response)
         data = json.loads(response.getResponse())
         return data['id']
+
 
     def mabl_waitfortest(self, variables):
         api_key_bytes = self.token.encode('ascii')
@@ -98,6 +108,7 @@ class Mabl_Client(object):
         if response.getStatus() not in HTTP_SUCCESS:
             logger.error("Wait for Test Request Error (%s)" % response.getStatus())
             self.throw_error(response)
+
         data = json.loads(response.getResponse())
         data['output'] = {}
         data['output']['journeyExecutionFailed'] = data['journey_execution_metrics']['failed']
@@ -109,13 +120,13 @@ class Mabl_Client(object):
         data['output']['planExecutionFailed'] = data['plan_execution_metrics']['failed']
         data['output']['planExecutionPassed'] = data['plan_execution_metrics']['passed']
         data['output']['planExecutionTotal'] = data['plan_execution_metrics']['total']
+
         journeyUrls = []
         for execution in data['executions']:
             for journey in execution['journey_executions']:
                 journeyUrls.append(journey['app_href'])
         data['output']['journeyUrl'] = journeyUrls
         return data
-
 
 
     def throw_error(self, response):
