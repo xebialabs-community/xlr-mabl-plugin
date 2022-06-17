@@ -49,7 +49,6 @@ class Mabl_Client(object):
         }
 
         response = self.httpRequest.get("login", headers=headers)
-        response.raise_for_status()
         
 
     def mabl_runtest(self, variables):
