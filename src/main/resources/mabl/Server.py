@@ -18,6 +18,8 @@ params = {
    'username': configuration.username,
    'password': configuration.password,
    'token': configuration.token,
+   'tokenCICD': configuration.tokenCICD,
+   'workspaceId': configuration.workspaceId,
    'proxyHost': configuration.proxyHost,
    'proxyPort': configuration.proxyPort
 }

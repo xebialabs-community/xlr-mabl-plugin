@@ -13,7 +13,9 @@ kind: Templates
 metadata:
   home: mabl
 spec:
-- name: Mabl
+- name: Mabl - Sample Workspace
   type: mabl.Server
   url: https://api.mabl.com/
+  workspaceId: hAaXkpWAGMYWcRCTyx6GVA-w
   token: !value "Dev_token"
+  tokenCICD: !value "CICD_token"

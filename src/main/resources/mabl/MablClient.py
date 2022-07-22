@@ -17,6 +17,7 @@ import base64
 from xlrelease.HttpRequest import HttpRequest
 import logging
 import requests
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -24,17 +25,22 @@ HTTP_SUCCESS = sets.Set([200, 201, 202, 203, 204, 205, 206, 207, 208])
 HTTP_ERROR = sets.Set([400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410,412, 413, 414, 415])
 
 class Mabl_Client(object):
-    def __init__(self, httpConnection, token=None):
+    def __init__(self, httpConnection, token=None, tokenCICD=None, failTaskOnFailedTest=True):
         self.httpConnection = httpConnection
+        self.workspaceId = httpConnection['workspaceId']
         self.token = token
         if token is None:
             self.token = httpConnection['token']
+        self.tokenCICD = tokenCICD
+        if tokenCICD is None:
+            self.tokenCICD = httpConnection['tokenCICD']
+        self.failTaskOnFailedTest = failTaskOnFailedTest
         self.httpRequest = HttpRequest(httpConnection)
 
 
     @staticmethod
-    def create_client(httpConnection, token=None):
-        return Mabl_Client(httpConnection, token)
+    def create_client(httpConnection, token=None, tokenCICD=None, failTaskOnFailedTest=True):
+        return Mabl_Client(httpConnection, token, tokenCICD, failTaskOnFailedTest)
 
 
     def testServer(self):
@@ -64,10 +70,10 @@ class Mabl_Client(object):
         payload =   {}
         
         if len(variables['environmentId']) > 0:
-            env = {"environment_id": variables['environmentId']}
+            env = {"environment_id": self.parseEnv(variables['environmentId'])}
             payload.update(env)
         if len(variables['applicationId']) > 0:
-            app = {"application_id": variables['applicationId']}
+            app = {"application_id": self.parseApp(variables['applicationId'])}
             payload.update(app)
         if len(variables['planLabels']) > 0:
             plans = {"plan_labels": variables['planLabels']}
@@ -86,6 +92,21 @@ class Mabl_Client(object):
             self.throw_error(response)
         data = json.loads(response.getResponse())
         return data['id']
+
+    def parseEnv(self, envString):
+        regex = r"[a-zA-Z0-9]*-e"
+        if re.search(regex, envString):
+            return re.search(regex, envString).group()
+        else:
+            raise Exception("The entered string - %s - does not contain an environment id. Expected pattern is alpha-numeric followed by -e." % envString)
+
+    def parseApp(self, appString):
+        regex = r"[a-zA-Z0-9]*-a"
+        if re.search(regex, appString):
+            return re.search(regex, appString).group()
+        else:
+            raise Exception("The entered string - %s - does not contain an application id. Expected pattern is alpha-numeric followed by -a." % appString)
+
 
 
     def mabl_waitfortest(self, variables):
@@ -127,7 +148,89 @@ class Mabl_Client(object):
         data['output']['journeyUrl'] = journeyUrls
         return data
 
+    def mabl_getEnvironments(self, variables):
+        api_key_bytes = self.tokenCICD.encode('ascii')
+        Base64String = base64.b64encode(api_key_bytes)
+        Base64String = "Basic %s" % Base64String
+
+        headers = {
+          "Content-Type": "application/json",
+          "Authorization": Base64String
+        }
+
+        mablUrl = "environments?organization_id=%s" % self.workspaceId
+        logger.debug("Requesting Environments %s" % mablUrl)
+        response = self.httpRequest.get(mablUrl, headers=headers, contentType='application/json')
+        data = json.loads(response.getResponse())
+        logger.debug("Get Environments Response\n=============\n%s\n==================" % json.dumps(data, indent=4, sort_keys=True))
+
+        if response.getStatus() not in HTTP_SUCCESS:
+            logger.error("Get Environments Request Error (%s)" % response.getStatus())
+            self.throw_error(response)
+
+        data = json.loads(response.getResponse())
+        environmentIds = []
+        for env in data['environments']:
+            environmentIds.append("%s (%s)" % (env["id"], env["name"]))
+        return environmentIds
+
+    def mabl_getApplications(self, variables):
+        api_key_bytes = self.tokenCICD.encode('ascii')
+        Base64String = base64.b64encode(api_key_bytes)
+        Base64String = "Basic %s" % Base64String
+
+        headers = {
+          "Content-Type": "application/json",
+          "Authorization": Base64String
+        }
+
+        mablUrl = "applications?organization_id=%s" % self.workspaceId
+        logger.debug("Requesting Applications %s" % mablUrl)
+        response = self.httpRequest.get(mablUrl, headers=headers, contentType='application/json')
+        data = json.loads(response.getResponse())
+        logger.debug("Get Environments Response\n=============\n%s\n==================" % json.dumps(data, indent=4, sort_keys=True))
+
+        if response.getStatus() not in HTTP_SUCCESS:
+            logger.error("Get Applications Request Error (%s)" % response.getStatus())
+            self.throw_error(response)
+
+        data = json.loads(response.getResponse())
+        applicationIds = []
+        for app in data['applications']:
+            applicationIds.append("%s (%s)" % (app["id"], app["name"]))
+        return applicationIds
+
+    def mabl_getLabels(self, variables):
+        api_key_bytes = self.tokenCICD.encode('ascii')
+        Base64String = base64.b64encode(api_key_bytes)
+        Base64String = "Basic %s" % Base64String
+
+        headers = {
+          "Content-Type": "application/json",
+          "Authorization": Base64String
+        }
+
+        mablUrl = "schedule/runPolicy/labels?organization_id=%s" % self.workspaceId
+        logger.debug("Requesting Labels %s" % mablUrl)
+        response = self.httpRequest.get(mablUrl, headers=headers, contentType='application/json')
+        data = json.loads(response.getResponse())
+        logger.debug("Get Labels Response\n=============\n%s\n==================" % json.dumps(data, indent=4, sort_keys=True))
+
+        if response.getStatus() not in HTTP_SUCCESS:
+            logger.error("Get Labels Request Error (%s)" % response.getStatus())
+            self.throw_error(response)
+
+        data = json.loads(response.getResponse())
+        labelNames = []
+        for lab in data['labels']:
+            labelNames.append(lab["name"])
+        return labelNames
+
 
     def throw_error(self, response):
         logger.error("Error from MablService, HTTP Return: %s\n" % ( response.getStatus() ) )
-        raise Exception(response.getStatus())
+        message = ""
+        if response.getResponse():
+            logger.error("Error from MablService, HTTP Return message: %s\n" % ( response.getResponse() ) )
+            message = response.getResponse()
+        raise Exception("Response status: %s, response message: %s " % (str(response.getStatus()), message))

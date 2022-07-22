@@ -12,7 +12,7 @@
 -->
 <synthetic xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd" xmlns="http://www.xebialabs.com/deployit/synthetic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <type type="mabl.Server" extends="configuration.HttpConnection" >
+    <type type="mabl.Server" label="Mabl Server Workspace" extends="configuration.HttpConnection" >
         <property name="scriptLocation" hidden="true" default="mabl/Server.py"/>
         <property name="username" default="NONE" hidden="true"/>
         <property name="password" default="NONE" hidden="true"/>
@@ -28,7 +28,9 @@
                 <value>Basic</value>
             </enum-values>
         </property>
-        <property name="token" password="true" label="API Token" category="Authentication" hidden="false" required="false" />
+        <property name="workspaceId" category="input" required="true" label="Workspace ID" />
+        <property name="token" password="true" label="API Key, Type - Deployment Trigger" category="Authentication" hidden="false" required="false" />
+        <property name="tokenCICD" password="true" label="API Key, Type - CI/CD Integration" category="Authentication" hidden="false" required="false" />
     </type>
 
     <type type="mabl.Task" extends="xlrelease.PythonScript" virtual="true">
@@ -36,7 +38,7 @@
         <property name="taskColor" hidden="true" default="#4c555a"/>
         <property name="scriptLocation" default="mabl/MablTask.py" hidden="true"/>
         <property name="mablServer" category="input" label="Server" referenced-type="mabl.Server" kind="ci" />
-        <property name="token" password="true" category="input" required="false" />
+        <property name="token" password="true" category="input" required="false" label="API Key, Type - Deployment Trigger" description="Optional - This value will be used to override Mabl Server configuration value"/>
         <property name="classReload" category="input" default="true" hidden="true" kind="boolean"/>
     </type>
 
@@ -46,6 +48,7 @@
         <property name="applicationId" category="input" required="false" />
         <property name="planLabels" category="input" required="false" kind="list_of_string"/>
         <property name="pollTime" category="input" default="10" kind="integer" hidden="false"/>
+        <property name="failTaskOnFailedTest" category="input" default="true" kind="boolean" description="Fail this task if at least one journey or plan fails"/>
         <property name="journeyExecutionFailed" category="output" kind="integer" />
         <property name="journeyExecutionPassed" category="output" kind="integer" />
         <property name="journeyExecutionRunning" category="output" kind="integer" />
@@ -64,6 +67,7 @@
         <property name="environmentId" category="input" required="false" />
         <property name="applicationId" category="input" required="false" />
         <property name="planLabels" category="input" required="false" kind="list_of_string"/>
+        <property name="failTaskOnFailedTest" category="input" default="true" kind="boolean" description="Fail this task if at least one journey or plan fails"/>
         <property name="testId" category="output" kind="string" />
     </type>
 
@@ -71,6 +75,7 @@
         <property name="scriptLocation" hidden="true" default="mabl/GetResult.py"/>
         <property name="testId" category="input" required="true" />
         <property name="pollTime" category="input" default="10" kind="integer" hidden="false"/>
+        <property name="failTaskOnFailedTest" category="input" default="true" kind="boolean" description="Fail this task if at least one journey or plan fails"/>
         <property name="journeyExecutionFailed" category="output" kind="integer" />
         <property name="journeyExecutionPassed" category="output" kind="integer" />
         <property name="journeyExecutionRunning" category="output" kind="integer" />
@@ -83,5 +88,28 @@
         <property name="journeyUrl" category="output" kind="list_of_string" />
     </type>
 
+    <type type="mabl.EnvironmentsValueProvider" extends="xlrelease.JythonProvider" label="Mabl Environments Value Provider"
+          description="This value provider will retrieve a list of environments for a specific workspace on a Mabl server.">
+        <property name="mablServer" label="Mabl Server" referenced-type="mabl.Server" kind="ci" required="true"/>
+        <property name="tokenCICD" password="true" label="API Key, Type - CI/CD Integration" required="false" />
+        <!--<property name="tokenCICD" password="true" label="API Key, Type - CI/CD Integration" category="input" required="false" description="Optional - This value will be used to override Mabl Server configuration value"/>-->
+        <property name="classReload" category="input" default="true" hidden="true" kind="boolean"/>
+    </type>
+
+    <type type="mabl.ApplicationsValueProvider" extends="xlrelease.JythonProvider" label="Mabl Applications Value Provider"
+          description="This value provider will retrieve a list of applications for a specific workspace on a Mabl server.">
+        <property name="mablServer" label="Mabl Server" referenced-type="mabl.Server" kind="ci" required="true"/>
+        <property name="tokenCICD" password="true" label="API Key, Type - CI/CD Integration" required="false" />
+        <!--<property name="tokenCICD" password="true" label="API Key, Type - CI/CD Integration" category="input" required="false" description="Optional - This value will be used to override Mabl Server configuration value"/>-->
+        <property name="classReload" category="input" default="true" hidden="true" kind="boolean"/>
+    </type>
+
+    <type type="mabl.PlanLabelsValueProvider" extends="xlrelease.JythonProvider" label="Mabl Plan Labels Value Provider"
+          description="This value provider will retrieve a list of plan labels for a specific workspace on a Mabl server.">
+        <property name="mablServer" label="Mabl Server" referenced-type="mabl.Server" kind="ci" required="true"/>
+        <property name="tokenCICD" password="true" label="API Key, Type - CI/CD Integration" required="false" />
+        <!--<property name="tokenCICD" password="true" label="API Key, Type - CI/CD Integration" category="input" required="false" description="Optional - This value will be used to override Mabl Server configuration value"/>-->
+        <property name="classReload" category="input" default="true" hidden="true" kind="boolean"/>
+    </type>
 
 </synthetic>

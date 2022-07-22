@@ -21,26 +21,29 @@ spec:
     tasks:
     - name: Run 1 Test
       type: mabl.runTestResultSync
-      mablServer: Mabl
-      environmentId: HbUISgrYIsdZ3SwWnxpKDQ-e
-      applicationId: AkB0CIJm5PYZNz5GIneIWQ-a
-      planLabels:
-      - Demo1
+      mablServer: Mabl - Sample Workspace
+      environmentId: "${environmentVPSW}"
+      applicationId: "${applicationVPSW}"
+      variableMapping:
+        pythonScript.planLabels: "${planLabelsVPSW}"
     - name: Run Multi Test
       type: mabl.runTestResultSync
-      mablServer: Mabl
-      environmentId: HbUISgrYIsdZ3SwWnxpKDQ-e
-      applicationId: AkB0CIJm5PYZNz5GIneIWQ-a
+      mablServer: Mabl - Sample Workspace
+      environmentId: "${environmentVPSW}"
+      applicationId: "${applicationVPSW}"
+      variableMapping:
+        pythonScript.planLabels: "${planLabelsVPSW}"
     - name: Run Test async
       type: mabl.runTest
-      mablServer: Mabl
-      environmentId: HbUISgrYIsdZ3SwWnxpKDQ-e
-      applicationId: AkB0CIJm5PYZNz5GIneIWQ-a
+      mablServer: Mabl - Sample Workspace
+      environmentId: "${environmentVPSW}"
+      applicationId: "${applicationVPSW}"
       variableMapping:
         pythonScript.testId: "${TestId1}"
+        pythonScript.planLabels: "${planLabelsVPSW}"
     - name: Get Result
       type: mabl.getResult
-      mablServer: Mabl
+      mablServer: Mabl - Sample Workspace
       testId: "${TestId1}"
     - name: gate
       type: xlrelease.GateTask
@@ -49,4 +52,25 @@ spec:
     key: TestId1
     requiresValue: false
     showOnReleaseStart: false
+  - type: xlrelease.StringVariable
+    key: environmentVPSW
+    requiresValue: false
+    label: Sample Workspace Environment
+    valueProvider:
+      type: mabl.EnvironmentsValueProvider
+      mablServer: Mabl - Sample Workspace
+  - type: xlrelease.StringVariable
+    key: applicationVPSW
+    requiresValue: false
+    label: Sample Workspace Application
+    valueProvider:
+      type: mabl.ApplicationsValueProvider
+      mablServer: Mabl - Sample Workspace
+  - type: xlrelease.ListStringVariable
+    key: planLabelsVPSW
+    requiresValue: false
+    label: Sample Workspace Plan Labels
+    valueProvider:
+      type: mabl.PlanLabelsValueProvider
+      mablServer: Mabl - Sample Workspace
   riskProfile: Default risk profile

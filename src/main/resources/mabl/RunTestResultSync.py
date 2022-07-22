@@ -14,7 +14,7 @@ from mabl.MablClient import Mabl_Client
 import logging
 
 logger = logging.getLogger('mabl.'+'RunTestResultSync')
-mablObj = Mabl_Client.create_client(mablServer, token)
+mablObj = Mabl_Client.create_client(mablServer, token, None, failTaskOnFailedTest)
 retrievedTestId = mablObj.mabl_runtest(locals())
 locals()['testId'] = retrievedTestId
 logger.debug("##### Start Polling ####")

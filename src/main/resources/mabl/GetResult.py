@@ -14,6 +14,6 @@ from mabl.MablClient import Mabl_Client
 import logging
 
 logger = logging.getLogger('mabl.'+'GetResult')
-mablObj = Mabl_Client.create_client(mablServer, token)
+mablObj = Mabl_Client.create_client(mablServer, token, None, failTaskOnFailedTest)
 logger.debug("##### Start Polling ####")
 task.schedule("mabl/waitForTest.py", pollTime)

@@ -14,13 +14,15 @@ import logging
 logger = logging.getLogger('mabl.'+'waitForTest')
 
 #logger = LoggerFactory.getLogger("Mabl")
-mablObj = Mabl_Client.create_client(mablServer, token)
+mablObj = Mabl_Client.create_client(mablServer, token, None, failTaskOnFailedTest)
+logger.debug("failTaskOnFailedTest = %s", failTaskOnFailedTest)
 method = "mabl_waitfortest"
 
-logger.error("##### Start Wait For Script ####")
-logger.error("Waiting for test ID %s" % testId)
+logger.debug("##### Start Wait For Script ####")
+logger.debug("Waiting for test ID %s" % testId)
 isDone = False
 count = 1
+hadFailure = False
 if not isDone:
     call = getattr(mablObj, method)
     results = call(locals())
@@ -45,9 +47,17 @@ if not isDone:
 
 if isDone:
     for key,value in results['output'].items():
-        logger.debug("%s = %s" % (key, value))
+        logger.debug("%s = %s, %s  %s" % (key, value, 'failed' in key,  value > 0))
         locals()[key] = value
+        if 'failed' in key.lower() and value > 0:
+            hadFailure = True
+
+
 
     print("# Journey URLs:")
     for url in results['output']['journeyUrl']:
         print("* %s" % url)
+
+    if hadFailure and mablObj.failTaskOnFailedTest:
+        logger.debug("At lease one test has failed and 'Fail Task On Failed Test' flag is set to true")
+        raise Exception("At lease one test has failed and 'Fail Task On Failed Test' flag is set to true")

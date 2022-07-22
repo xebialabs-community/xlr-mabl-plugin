@@ -8,15 +8,17 @@
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-xlr:
-  image: xebialabs/xl-release:22.1
-  volumes:
-    #- ~/xl-licenses/xl-release-license.lic:/opt/xebialabs/xl-release-server/conf/xl-release-license.lic
-    - ./../../../../build/libs/:/opt/xebialabs/xl-release-server/default-plugins/__local__/
-    #- /Users/lynn/workspace/xebiaLabs/valueProviders/xlr-mabl-value-provider/build/libs/xlr-mabl-value-provider-1.0.0.jar:/opt/xebialabs/xl-release-server/default-plugins/__local__/xlr-mabl-value-provider-1.0.0.jar
-    - ./../../../../build/reports/tests/log/:/opt/xebialabs/xl-release-server/log/
-  environment:
-      - ADMIN_PASSWORD=admin
-      - ACCEPT_EULA=Y
-  ports:
-   - "15516:5516"
+import mabl.MablClient
+if classReload:
+    reload(mabl.MablClient)
+from mabl.MablClient import Mabl_Client
+import logging
+
+logger = logging.getLogger('mabl.'+'ApplicationsValueProvider')
+
+def findApplications():
+    mablObj = Mabl_Client.create_client(mablServer, None, tokenCICD)
+    retrievedApplicationsList = mablObj.mabl_getApplications(locals())
+    return retrievedApplicationsList
+
+result = findApplications()

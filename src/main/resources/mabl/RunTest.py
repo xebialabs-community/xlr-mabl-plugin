@@ -15,6 +15,6 @@ import logging
 
 logger = logging.getLogger('mabl.'+'RunTest')
 logger.debug("In RunTest")
-mablObj = Mabl_Client.create_client(mablServer, token)
+mablObj = Mabl_Client.create_client(mablServer, token, None, failTaskOnFailedTest)
 retrievedTestId = mablObj.mabl_runtest(locals())
 locals()['testId'] = retrievedTestId
